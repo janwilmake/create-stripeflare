@@ -1,23 +1,21 @@
 {
   "name": "create-stripeflare",
-  "version": "0.0.1",
-  "description": "CLI to create a new Stripe + Cloudflare Workers project",
+  "version": "0.0.2",
+  "description": "CLI tool to create Stripeflare projects",
   "main": "index.js",
   "bin": {
     "create-stripeflare": "./index.js"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [
     "stripe",
     "cloudflare",
-    "workers",
-    "cli"
+    "cli",
+    "template"
   ],
-  "author": "",
-  "license": "MIT",
-  "engines": {
-    "node": ">=18.0.0"
-  }
+  "author": "Jan Wilmake",
+  "license": "MIT"
 }
