@@ -21,5 +21,5 @@ export default {
         ? `Charged ${ctx.user.name} 1 cent in ${speed}ms`
         : `Could not charge user in ${speed}ms`,
     );
-  }),
+  }, {}),
 };
