@@ -47,7 +47,7 @@ async function main() {
 
     console.log("\n✅ StripeFlare project created successfully!");
     console.log(`📁 Project location: ./${projectConfig.name}`);
-    console.log(`🌐 Domain: ${projectConfig.domain}`);
+    console.log(`🌐 Domain: https://${projectConfig.domain}`);
     console.log(`💳 Payment link: ${paymentLink}`);
   } catch (error) {
     console.error("❌ Error:", error.message);
