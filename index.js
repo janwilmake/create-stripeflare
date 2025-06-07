@@ -33,7 +33,7 @@ async function main() {
     // Install dependencies
     installDependencies(projectConfig.name);
 
-    // Create Stripe payment link
+    // Create Stripe price and payment link
     const paymentLink = await createStripePaymentLink(envVars, projectConfig);
 
     // Create Stripe webhook
@@ -48,6 +48,7 @@ async function main() {
     console.log("\n✅ StripeFlare project created successfully!");
     console.log(`📁 Project location: ./${projectConfig.name}`);
     console.log(`🌐 Domain: ${projectConfig.domain}`);
+    console.log(`💳 Payment link: ${paymentLink}`);
   } catch (error) {
     console.error("❌ Error:", error.message);
     process.exit(1);
@@ -104,12 +105,24 @@ async function promptForProjectDetails() {
     const name = await question("Worker/repo name: ");
     const domain = await question("Domain: ");
     const title = await question("Title: ");
+    const price = await question("Price (in USD, e.g., 19.99): ");
 
-    if (!name || !domain || !title) {
+    if (!name || !domain || !title || !price) {
       throw new Error("All fields are required");
     }
 
-    return { name: name.trim(), domain: domain.trim(), title: title.trim() };
+    // Validate price
+    const priceNum = parseFloat(price);
+    if (isNaN(priceNum) || priceNum <= 0) {
+      throw new Error("Price must be a valid positive number");
+    }
+
+    return {
+      name: name.trim(),
+      domain: domain.trim(),
+      title: title.trim(),
+      price: priceNum,
+    };
   } finally {
     rl.close();
   }
@@ -240,33 +253,79 @@ function installDependencies(projectName) {
 }
 
 /**
- * Create Stripe payment link
+ * Create Stripe product, price, and payment link
  * @param {Object} envVars - Environment variables
  * @param {Object} config - Project configuration
  * @returns {Promise<string>} Payment link URL
  */
 async function createStripePaymentLink(envVars, config) {
-  console.log("💳 Creating Stripe payment link...");
+  console.log("💳 Creating Stripe product and price...");
 
-  const response = await fetch("https://api.stripe.com/v1/payment_links", {
+  // First, create a product
+  const productResponse = await fetch("https://api.stripe.com/v1/products", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${envVars.STRIPE_SECRET}`,
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: new URLSearchParams({
-      "line_items[0][price_data][currency]": "usd",
-      "line_items[0][price_data][product_data][name]": config.title,
-      "line_items[0][quantity]": "1",
+      name: config.title,
+      type: "service", // or "good" if it's a physical product
     }),
   });
 
-  if (!response.ok) {
-    const error = await response.text();
+  if (!productResponse.ok) {
+    const error = await productResponse.text();
+    throw new Error(`Failed to create product: ${error}`);
+  }
+
+  const product = await productResponse.json();
+  console.log("✅ Created Stripe product");
+
+  // Create a price for the product
+  const priceResponse = await fetch("https://api.stripe.com/v1/prices", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${envVars.STRIPE_SECRET}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      currency: "usd",
+      product: product.id,
+      unit_amount: Math.round(config.price * 100), // Convert to cents
+    }),
+  });
+
+  if (!priceResponse.ok) {
+    const error = await priceResponse.text();
+    throw new Error(`Failed to create price: ${error}`);
+  }
+
+  const price = await priceResponse.json();
+  console.log("✅ Created Stripe price");
+
+  // Now create the payment link using the price ID
+  const paymentLinkResponse = await fetch(
+    "https://api.stripe.com/v1/payment_links",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${envVars.STRIPE_SECRET}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        "line_items[0][price]": price.id,
+        "line_items[0][quantity]": "1",
+      }),
+    },
+  );
+
+  if (!paymentLinkResponse.ok) {
+    const error = await paymentLinkResponse.text();
     throw new Error(`Failed to create payment link: ${error}`);
   }
 
-  const paymentLink = await response.json();
+  const paymentLink = await paymentLinkResponse.json();
   console.log("✅ Created Stripe payment link");
 
   return paymentLink.url;
