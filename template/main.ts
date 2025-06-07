@@ -11,15 +11,14 @@ export default {
         headers: { Location: ctx.paymentLink },
       });
     }
-
-    console.log({ user: ctx.user });
-
     const { charged, message } = await ctx.charge(1, false);
     const speed = Date.now() - t;
     return new Response(
       charged
-        ? `Charged ${ctx.user.name} 1 cent in ${speed}ms`
-        : `Could not charge user in ${speed}ms`,
+        ? `Charged ${ctx.user.email} 1 cent in ${speed}ms. User balance: $${(
+            ctx.user.balance / 100
+          ).toFixed(2)}`
+        : `Could not charge user: ${message}`,
     );
-  }, {}),
+  }),
 };
