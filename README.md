@@ -26,4 +26,4 @@ Details you need to have before running this:
 - Name of your worker & repo
 - Domain where to deploy the worker. Can be a subdomain. Must be a valid domain you already own in your Cloudflare account.
 
-Please note this will not create a repo in your GitHub but it WILL set
+Please note this will not create a repo in your GitHub but it WILL init the .git folder and set the origin. Just push yourself!
