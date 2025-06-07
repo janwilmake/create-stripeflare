@@ -25,7 +25,7 @@ async function main() {
     const projectConfig = await promptForProjectDetails();
 
     // Create project directory and copy template
-    createProject(projectConfig);
+    createProject(envVars.GITHUB_OWNER, projectConfig);
 
     // Replace template variables
     replaceTemplateVariables(projectConfig);
@@ -130,9 +130,10 @@ async function promptForProjectDetails() {
 
 /**
  * Create project directory and copy template files
+ * @param {string} githubOwner
  * @param {Object} config - Project configuration
  */
-function createProject(config) {
+function createProject(githubOwner, config) {
   const templatePath = path.join(__dirname, "template");
   const projectPath = path.resolve(config.name);
 
@@ -150,12 +151,12 @@ function createProject(config) {
   // Initialize git
   process.chdir(projectPath);
   execSync("git init", { stdio: "inherit" });
-  execSync(
-    `git remote add origin https://github.com/${
-      process.env.GITHUB_OWNER || "user"
-    }/${config.name}`,
-    { stdio: "inherit" },
-  );
+  if (githubOwner) {
+    execSync(
+      `git remote add origin https://github.com/${githubOwner}/${config.name}`,
+      { stdio: "inherit" },
+    );
+  }
 
   console.log(`✅ Created project directory: ${config.name}`);
 }
