@@ -14,4 +14,4 @@ This is a [Stripeflare](https://github.com/janwilmake/stripeflare) Project for `
 
 ## Payment link configuration
 
-It is not possible to edit payment links config through the Stripe Dashboard after creating the payment link programmatically, so if you want to change it, replace `env.STRIPE_PAYMENT_LINK` with a payment link you create yourself.
+It is not possible to edit payment links config through the Stripe Dashboard (see [this post](https://x.com/janwilmake/status/1931336003068837919)) after creating the payment link programmatically, so if you want to change it, replace `env.STRIPE_PAYMENT_LINK` with a payment link you create yourself.
