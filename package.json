@@ -1,0 +1,23 @@
+{
+  "name": "create-stripeflare",
+  "version": "0.0.1",
+  "description": "CLI to create a new Stripe + Cloudflare Workers project",
+  "main": "index.js",
+  "bin": {
+    "create-stripeflare": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "stripe",
+    "cloudflare",
+    "workers",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "{{name}}",
+  "dependencies": {
+    "stripeflare": "^0.0.24"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250606.0"
+  }
+}
