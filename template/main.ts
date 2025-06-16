@@ -1,24 +1,19 @@
 import { withStripeflare, StripeUser, DORM } from "stripeflare";
 export { DORM };
 
+type Env = {};
 // StripeUser can be extended
 export default {
-  fetch: withStripeflare<StripeUser>(async (request, env, ctx) => {
-    const t = Date.now();
-    if (!ctx.registered || ctx.user.balance <= 0) {
+  fetch: withStripeflare<Env, StripeUser>(async (request, env, ctx) => {
+    if (!ctx.registered || ctx.user.balance < 1) {
       return new Response("User should pay at " + ctx.paymentLink, {
         status: 402,
-        headers: { Location: ctx.paymentLink },
       });
     }
-    const { charged, message } = await ctx.charge(1, false);
-    const speed = Date.now() - t;
+    const newBalance = ((ctx.user.balance - 1) / 100).toFixed(2);
     return new Response(
-      charged
-        ? `Charged ${ctx.user.email} 1 cent in ${speed}ms. User balance: $${(
-            ctx.user.balance / 100
-          ).toFixed(2)}`
-        : `Could not charge user: ${message}`,
+      `Charging ${ctx.user.email} 1 cent.\n\nNew User balance: $${newBalance}`,
+      { headers: { "X-Price": "1" } },
     );
   }),
 };
