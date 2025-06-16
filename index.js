@@ -148,7 +148,14 @@ function createProject(githubOwner, config) {
   // Copy template recursively
   copyRecursive(templatePath, projectPath);
 
-  // Initialize git
+  // Rename gitignore to .gitignore after copying
+  const gitignorePath = path.join(projectPath, "gitignore");
+  const dotGitignorePath = path.join(projectPath, ".gitignore");
+  if (fs.existsSync(gitignorePath)) {
+    fs.renameSync(gitignorePath, dotGitignorePath);
+  }
+
+  // Initialize git AFTER handling .gitignore
   process.chdir(projectPath);
   execSync("git init", { stdio: "inherit" });
   if (githubOwner) {
